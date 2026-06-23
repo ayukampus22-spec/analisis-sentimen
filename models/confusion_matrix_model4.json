@@ -1,0 +1,26 @@
+{
+    "model_name": "MultinomialNB + FeatureUnion (Model 4 - MNB Terbaik)",
+    "labels": [
+        "positif",
+        "negatif",
+        "netral"
+    ],
+    "confusion_matrix": [
+        [
+            1042,
+            26,
+            27
+        ],
+        [
+            13,
+            53,
+            4
+        ],
+        [
+            37,
+            23,
+            67
+        ]
+    ],
+    "notes": "Baris merepresentasikan label sebenarnya (True Labels), kolom merepresentasikan label prediksi (Predicted Labels). Urutan label: positif, negatif, netral."
+}

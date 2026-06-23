@@ -1,0 +1,8 @@
+{
+    "MultinomialNB Murni": 0.8560371517027864,
+    "MultinomialNB + Smooth": 0.8900928792569659,
+    "MultinomialNB + GridSearch": 0.8869969040247678,
+    "MultinomialNB + FeatureUnion": 0.8993808049535603,
+    "Voting Ensemble (Pembanding)": 0.9226006191950464,
+   
+}
