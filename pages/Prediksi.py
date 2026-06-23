@@ -9,9 +9,43 @@ import numpy as np
 import pandas as pd
 import string
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
+import nltk
+
+# ==================== NLTK SETUP ====================
+# Pastikan NLTK resources tersedia dengan fallback
+def setup_nltk():
+    """Setup NLTK resources dengan fallback"""
+    try:
+        # Coba cari stopwords
+        nltk.data.find('corpora/stopwords')
+        print("NLTK stopwords found")
+        return True
+    except LookupError:
+        try:
+            # Download stopwords
+            import ssl
+            try:
+                _create_unverified_https_context = ssl._create_unverified_context
+            except AttributeError:
+                pass
+            else:
+                ssl._create_default_https_context = _create_unverified_https_context
+            
+            print("Downloading NLTK stopwords...")
+            nltk.download('stopwords', quiet=True)
+            nltk.download('punkt', quiet=True)
+            print("NLTK stopwords downloaded successfully")
+            return True
+        except Exception as e:
+            print(f"Gagal download NLTK: {e}")
+            return False
+
+setup_nltk()
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# ==================== IMPORT UTILS ====================
 try:
     from utils.model_loader import load_models, predict_with_ml_model, load_model_performance, get_model_info, get_available_models
 except ImportError as e:
@@ -116,10 +150,34 @@ except ImportError as e:
 factory = StemmerFactory()
 stemmer = factory.create_stemmer()
 
-from nltk.corpus import stopwords
-stop_words = set(stopwords.words('indonesian'))
-negations = {'tidak','bukan','jangan','belum','tanpa','tiada','tak'}
-stop_words = stop_words - negations
+# Setup stopwords dengan fallback
+def get_stopwords():
+    """Mendapatkan stopwords dengan fallback"""
+    try:
+        from nltk.corpus import stopwords
+        stop_words = set(stopwords.words('indonesian'))
+        print("Using NLTK stopwords")
+    except (LookupError, ImportError) as e:
+        print(f"NLTK stopwords not available, using manual fallback: {e}")
+        # Manual Indonesian stopwords
+        stop_words = {
+            'yang', 'dan', 'di', 'ke', 'dari', 'pada', 'ini', 'itu', 'untuk', 'dengan',
+            'akan', 'atau', 'karena', 'bahwa', 'oleh', 'sebagai', 'juga', 'dalam', 'dapat',
+            'telah', 'tersebut', 'merupakan', 'adalah', 'serta', 'bagi', 'atas',
+            'antara', 'bagaimana', 'berada', 'berbagai', 'berikut', 'berupa', 'bisa',
+            'demikian', 'hingga', 'kepada', 'meskipun', 'mungkin', 'nantinya', 'selain',
+            'selama', 'seperti', 'setelah', 'tanpa', 'terhadap', 'terutama',
+            'begitu', 'begini', 'tentang', 'sebagian', 'sehingga', 'supaya',
+            'aku', 'kamu', 'dia', 'mereka', 'kita', 'kami', 'anda', 'saya',
+            'ia', 'engkau', 'beliau', 'nya', 'mu', 'ku', 'lah', 'kah', 'pun'
+        }
+    
+    # Negations yang harus tetap dipertahankan
+    negations = {'tidak','bukan','jangan','belum','tanpa','tiada','tak'}
+    stop_words = stop_words - negations
+    return stop_words
+
+stop_words = get_stopwords()
 
 slang_dict = {
     'yg':'yang','dgn':'dengan','dg':'dengan','udh':'sudah','udah':'sudah',
@@ -158,10 +216,7 @@ def step2_cleansing(text):
     text = re.sub(r'http\S+|www\.\S+', '', text)
     text = re.sub(r'@\w+|#\w+', '', text)
     text = text.encode('ascii', 'ignore').decode('ascii')
-    # FIX: sebelumnya hanya menghapus digitnya saja (re.sub(r'\d+', '', text))
-    # sehingga token seperti "s24" / "a55" tersisa jadi huruf nyangkut ("s" / "a")
-    # yang kemudian hilang aneh di langkah stopword removal. Sekarang seluruh
-    # token yang mengandung angka dibuang utuh.
+    # Hapus seluruh token yang mengandung angka
     text = re.sub(r'\b\w*\d\w*\b', '', text)
     text = text.translate(str.maketrans('', '', string.punctuation))
     text = re.sub(r'\s+', ' ', text).strip()
@@ -529,12 +584,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==================== INISIALISASI SESSION STATE ====================
-# FIX: sebelumnya ada DUA state berbeda untuk teks input -> 'user_input' (variabel
-# bayangan) dan 'input_text_area' (state asli milik widget text_area karena
-# punya parameter key). Streamlit mengabaikan parameter value= pada widget yang
-# sudah punya key tersimpan di session_state, jadi mengubah 'user_input' saja
-# TIDAK akan mengubah isi kotak teks. Sekarang hanya 1 sumber kebenaran:
-# st.session_state.input_text_area
 if 'input_text_area' not in st.session_state:
     st.session_state.input_text_area = ""
 if 'show_result' not in st.session_state:
@@ -575,16 +624,11 @@ with st.spinner("Memuat model..."):
         
         available_models = get_available_models()
         
-        
-     
     except Exception as e:
         model_loaded = False
         st.error(f"❌ Gagal memuat model: {e}")
 
-# ==================== CALLBACK FUNGSI (harus dipanggil via on_click, BUKAN
-# dengan "if tombol_diklik: set session_state lalu st.rerun()". Streamlit
-# melarang mengubah session_state milik widget SETELAH widget itu diinstansiasi
-# pada run yang sama. on_click dijalankan sebelum widget direnderulang sehingga aman) ====================
+# ==================== CALLBACK FUNGSI ====================
 def clear_input_callback():
     st.session_state.input_text_area = ""
     st.session_state.last_seen_input = ""
@@ -603,10 +647,6 @@ def set_example_callback(text):
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="subheader">✍️ Masukkan Teks Ulasan</div>', unsafe_allow_html=True)
 
-# FIX: text_area sekarang TIDAK diberi parameter value= lagi, karena widget
-# dengan key sudah otomatis membaca/menulis ke st.session_state.input_text_area.
-# Dengan begini, mengubah st.session_state.input_text_area di tombol manapun
-# (Bersihkan / Contoh Ulasan) akan langsung tercermin di kotak teks setelah rerun.
 user_input = st.text_area(
     "",
     placeholder="Contoh: Samsung A55 bagus banget, kameranya jernih dan baterai tahan lama. Recommended!",
