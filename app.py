@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 st.set_page_config(
-    page_title="SentimenAnalis - Sentimen Samsung Galaxy",
+    page_title="SentimenAnalis - Analisis Sentimen Samsung Galaxy",
     page_icon="📱",
     layout="wide"
 )
@@ -151,7 +151,7 @@ if 'current_page' not in st.session_state:
 # ==================== SIDEBAR KUSTOM ====================
 with st.sidebar:
     st.markdown("# 📱 SentimenAnalis")
-    st.markdown("Analisis Sentimen Ulasan Produk Samsung Galaxy")
+    st.markdown("Analisis Sentimen Ulasan Produk Samsung Galaxy Official Store Jakarta")
     st.markdown("---")
     
     # Menu navigasi
