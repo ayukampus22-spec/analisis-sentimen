@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 st.set_page_config(
-    page_title="SentimenAnalis - Analisis Sentimen Samsung Galaxy",
+    page_title="SentimenAnalis - Sentimen Samsung Galaxy",
     page_icon="📱",
     layout="wide"
 )
