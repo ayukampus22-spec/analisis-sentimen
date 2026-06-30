@@ -1405,12 +1405,12 @@ if st.session_state.training_started and not st.session_state.training_completed
             # ============================================================
             # STEP 6: FEATURE ENGINEERING
             # ============================================================
-            update_progress(82, "⚙️ Feature Engineering TF-IDF...")
+            update_progress(82, "⚙️ FeatureUnion TF-IDF...")
             st.markdown('<div class="step-card">', unsafe_allow_html=True)
             st.markdown(f"""
             <div class="step-title">
                 <span class="step-icon">6</span>
-                FEATURE ENGINEERING (TF-IDF)
+                FEATUREUNION (TF-IDF)
             </div>
             <div class="info-box">
                 📊 <strong>Word TF-IDF (1-3gram):</strong> menangkap kata dan frasa dari ulasan<br>
