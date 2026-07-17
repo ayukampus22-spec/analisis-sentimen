@@ -3,7 +3,9 @@ import pandas as pd
 import random
 import time
 import re
+import base64
 from datetime import datetime
+from pathlib import Path
 from utils.data import set_scraped_data
 
 # ==================== INISIALISASI SESSION STATE ====================
@@ -204,121 +206,94 @@ st.markdown("""
     .stCaption {
         font-size: 14px !important;
     }
-    .page-header {
-        text-align: center;
-        padding: 1.5rem;
-        background: #f8f9fa;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        border: 1px solid #e9ecef;
+    
+    /* Header dengan logo */
+    .header-with-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
     }
-    .page-header h1 {
-        font-size: 1.6rem;
-        margin-bottom: 0.25rem;
-        color: #212529;
+    .header-with-logo h1 {
+        margin: 0;
     }
-    .page-header p {
-        font-size: 0.9rem;
-        color: #495057;
+    .logo-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
-    .card {
-        background: white;
-        border-radius: 10px;
-        border: 1px solid #e9ecef;
-        padding: 1.25rem;
-        margin-bottom: 1.25rem;
+    .tokopedia-link {
+        display: inline-block;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        text-decoration: none;
+        line-height: 0;
     }
-    .card-title {
-        font-size: 1rem;
+    .tokopedia-link:hover {
+        transform: scale(1.1);
+    }
+    .tokopedia-logo {
+        max-height: 40px;
+        width: auto;
+        vertical-align: middle;
+    }
+    .tokopedia-text {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 18px !important;
         font-weight: 600;
-        color: #212529;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #f1f3f5;
+        color: #03ac0e;
+        cursor: default;
     }
-    .info-banner {
-        background: #f0fdf4;
-        border-left: 4px solid #22c55e;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-        font-size: 0.85rem;
-        color: #166534;
-    }
-    .success-banner {
-        background: #f0fdf4;
-        border-left: 4px solid #22c55e;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-    .error-banner {
-        background: #fef2f2;
-        border-left: 4px solid #ef4444;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-        color: #991b1b;
-    }
-    .stat-box {
-        background: #f8f9fa;
-        padding: 0.75rem;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #e9ecef;
-    }
-    .stat-number {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #22c55e;
-    }
-    .stat-label {
-        font-size: 0.75rem;
-        color: #6c757d;
-        margin-top: 0.1rem;
-    }
-    .log-container {
-        background: #0f172a;
-        border-radius: 8px;
-        padding: 0.75rem;
-        max-height: 250px;
-        overflow-y: auto;
-        font-family: 'Courier New', monospace;
-        font-size: 0.7rem;
-    }
-    .log-success { 
-        color: #22c55e; 
-        border-left: 2px solid #22c55e; 
-        padding-left: 8px; 
-        margin-bottom: 3px;
-    }
-    .log-info { 
-        color: #60a5fa; 
-        border-left: 2px solid #60a5fa; 
-        padding-left: 8px; 
-        margin-bottom: 3px;
-    }
-    .log-error { 
-        color: #ef4444; 
-        border-left: 2px solid #ef4444; 
-        padding-left: 8px; 
-        margin-bottom: 3px;
-    }
-    .footer {
-        text-align: center;
-        padding: 1rem;
-        color: #6c757d;
-        font-size: 0.75rem;
-        border-top: 1px solid #e9ecef;
-        margin-top: 1.5rem;
+    @media (max-width: 600px) {
+        .header-with-logo {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tokopedia-logo {
+            max-height: 30px;
+        }
+        .tokopedia-text {
+            font-size: 14px !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
+# ==================== FUNGSI UNTUK LOGO ====================
+def get_image_base64(image_path):
+    """Membaca file gambar dan mengkonversi ke base64"""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return None
+
 # ==================== HEADER ====================
-st.markdown("""
+# Coba load logo lokal
+logo_base64 = get_image_base64("logo.png")
+
+if logo_base64:
+    logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="Tokopedia" class="tokopedia-logo">'
+else:
+    # Fallback ke logo online jika file tidak ditemukan
+    logo_html = '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Tokopedia_Logo.svg/2560px-Tokopedia_Logo.svg.png" alt="Tokopedia" class="tokopedia-logo">'
+
+st.markdown(f"""
 <div class="page-header">
-    <h1>📁 Scraping Data Ulasan</h1>
+    <div class="header-with-logo">
+        <h1>📁 Scraping Data Ulasan</h1>
+        <div class="logo-wrapper">
+            <a href="https://www.tokopedia.com/samsung-official-store/review" 
+               target="_blank" 
+               class="tokopedia-link"
+               title="Klik untuk melihat ulasan Samsung di Tokopedia">
+                {logo_html}
+            </a>
+            <span class="tokopedia-text">Samsung Official Store</span>
+        </div>
+    </div>
     <p>Ambil data ulasan produk Samsung Galaxy dari Tokopedia</p>
 </div>
 """, unsafe_allow_html=True)
@@ -770,9 +745,17 @@ else:
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================== FOOTER ====================
-st.markdown("""
+st.markdown(f"""
 <div class="footer">
     <p>© 2026 SentimenAnalis — Scraping Data Ulasan Samsung Galaxy</p>
-    <p>Data tersimpan otomatis dan dapat dikelola di halaman Kelola Data</p>
+    <p>
+        Data dari 
+        <a href="https://www.tokopedia.com/samsung-official-store/review" 
+           target="_blank" 
+           style="color: #03ac0e; text-decoration: none; font-weight: 500;">
+            Tokopedia Samsung Official Store
+        </a>
+        • Data tersimpan otomatis dan dapat dikelola di halaman Kelola Data
+    </p>
 </div>
 """, unsafe_allow_html=True)
