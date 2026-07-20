@@ -5,7 +5,45 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import os
 
-# ==================== SLANG DICTIONARY ====================
+# ============================================
+# SETUP NLTK (Tambahkan di awal)
+# ============================================
+import nltk
+import ssl
+
+# Fix SSL untuk download
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Download NLTK resources yang dibutuhkan
+def download_nltk_if_needed():
+    """Download NLTK resources jika belum ada"""
+    resources = ['stopwords', 'punkt', 'vader_lexicon', 'wordnet', 'omw-1.4']
+    for resource in resources:
+        try:
+            if resource == 'punkt':
+                nltk.data.find(f'tokenizers/{resource}')
+            else:
+                nltk.data.find(f'corpora/{resource}')
+        except LookupError:
+            nltk.download(resource, quiet=True)
+            print(f"Downloaded NLTK resource: {resource}")
+
+# Jalankan download
+download_nltk_if_needed()
+
+# Import dari NLTK setelah download
+from nltk.corpus import stopwords as nltk_stopwords
+from nltk.tokenize import word_tokenize
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+# ============================================
+# SLANG DICTIONARY (LANJUTKAN)
+# ============================================
 SLANG_DICT = {
     # Kata ganti
     'gw': 'saya', 'gue': 'saya', 'gua': 'saya', 'aku': 'saya',
@@ -191,8 +229,13 @@ SLANG_DICT = {
     'paking': 'packing', 'peking': 'packing', 'pengemasan': 'packing',
 }
 
-# ==================== STOPWORDS ====================
-STOPWORDS = {
+# ============================================
+# STOPWORDS (Gabung dengan NLTK stopwords)
+# ============================================
+# Ambil stopwords dari NLTK dan tambahkan dengan stopwords custom
+NLTK_STOPWORDS = set(nltk_stopwords.words('indonesian')) if 'indonesian' in nltk_stopwords.fileids() else set()
+
+STOPWORDS = NLTK_STOPWORDS.union({
     'yang', 'dan', 'di', 'dari', 'ini', 'itu', 'untuk', 'dengan',
     'pada', 'ke', 'dalam', 'oleh', 'sebagai', 'juga', 'adalah',
     'mereka', 'kita', 'kami', 'anda', 'kamu', 'aku', 'dia', 'ia',
@@ -204,11 +247,13 @@ STOPWORDS = {
     'sambil', 'tanpa', 'maupun', 'selain', 'seluruh',
     'banyak', 'sedikit', 'semua', 'beberapa', 'para', 'sesuai',
     'saat', 'sekarang', 'kemarin', 'hari', 'bulan', 'tahun', 'waktu'
-}
+})
 
 NEGATIONS = {'tidak', 'bukan', 'jangan', 'belum', 'tanpa', 'tak', 'takkan'}
 
-# ==================== PREPROCESSING FUNCTIONS ====================
+# ============================================
+# PREPROCESSING FUNCTIONS
+# ============================================
 def step1_case_folding(text):
     """Step 1: Case Folding - Mengubah teks ke huruf kecil"""
     return text.lower()
