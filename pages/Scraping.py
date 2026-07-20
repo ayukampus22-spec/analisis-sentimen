@@ -272,7 +272,7 @@ def get_image_base64(image_path):
 
 # ==================== HEADER ====================
 # Coba load logo lokal
-logo_base64 = get_image_base64("logo.jpeg")
+logo_base64 = get_image_base64("logo.png")
 
 if logo_base64:
     logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="Tokopedia" class="tokopedia-logo">'
