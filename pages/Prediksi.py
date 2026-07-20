@@ -764,6 +764,5 @@ except:
 st.markdown(f"""
 <div class="footer">
     <p>© 2026 Analisis Sentimen Samsung Galaxy</p>
-    <p style="font-size:0.7rem; color:#b0b8c4;">Model: <strong>{best_model_name}</strong> · Akurasi {best_accuracy*100:.2f}%</p>
-</div>
+    </div>
 """, unsafe_allow_html=True)
