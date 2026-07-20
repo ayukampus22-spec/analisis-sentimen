@@ -1,4 +1,37 @@
+# ============================================
+# 1. SETUP NLTK (PALING ATAS)
+# ============================================
+import nltk
+import ssl
 import streamlit as st
+
+# Fix SSL
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Download NLTK resources
+@st.cache_resource
+def download_nltk_resources():
+    resources = ['stopwords', 'punkt', 'vader_lexicon', 'wordnet', 'omw-1.4']
+    for resource in resources:
+        try:
+            if resource == 'punkt':
+                nltk.data.find(f'tokenizers/{resource}')
+            else:
+                nltk.data.find(f'corpora/{resource}')
+        except LookupError:
+            nltk.download(resource, quiet=True)
+    return "Ready"
+
+download_nltk_resources()
+
+# ============================================
+# 2. KODE ORIGINAL ANDA
+# ============================================
 import os
 
 st.set_page_config(
@@ -151,7 +184,7 @@ if 'current_page' not in st.session_state:
 # ==================== SIDEBAR KUSTOM ====================
 with st.sidebar:
     st.markdown("# 📱 SentimenAnalis")
-    st.markdown("Analisis Sentimen Ulasan Produk Samsung Galaxy Official Store Jakarta")
+    st.markdown("Analisis Sentimen Ulasan Produk Samsung Galaxy")
     st.markdown("---")
     
     # Menu navigasi
@@ -171,7 +204,6 @@ with st.sidebar:
     
     st.markdown("---")
     
- 
     st.caption("© 2026 SentimenAnalis")
 
 # ==================== LOAD PAGE ====================
