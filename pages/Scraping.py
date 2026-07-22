@@ -551,7 +551,7 @@ with col2:
     st.markdown(f"""
     <div class="logo-box">
         <img src="{logo_src}" alt="Tokopedia">
-        <span class="label-text">Buka <span class="highlight">Tokopedia</span></span>
+        <span class="label-text">Ulasan <span class="highlight">Samsung</span></span>
         <a href="https://www.tokopedia.com/samsung-official-store/review" target="_blank" class="search-btn">
             <span class="icon">🔍</span>
             Cari
