@@ -66,6 +66,76 @@ st.markdown("""
         font-size: 1rem !important;
         color: #495057;
     }
+    
+    /* Header dengan logo - RAPI */
+    .header-with-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 0.25rem;
+    }
+    .header-with-logo h1 {
+        margin: 0;
+    }
+    
+    /* Logo Box - SAMA DENGAN PREDIKSI.PY */
+    .logo-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #e8ecf0;
+        gap: 8px;
+        height: 100%;
+        min-height: 100px;
+        width: 100%;
+    }
+    .logo-box img {
+        height: 80px;
+        width: auto;
+        display: block;
+    }
+    .logo-box .label-text {
+        font-size: 0.8rem !important;
+        font-weight: 600;
+        color: #1a2a3a;
+        white-space: nowrap;
+    }
+    .logo-box .label-text .highlight {
+        color: #43a047;
+    }
+    .logo-box .search-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 14px;
+        background: #e8f5e9;
+        border-radius: 16px;
+        color: #43a047;
+        font-weight: 600;
+        font-size: 0.75rem !important;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        text-decoration: none !important;
+        border: 1px solid transparent;
+    }
+    .logo-box .search-btn:hover {
+        background: #43a047;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        text-decoration: none !important;
+        border-color: #43a047;
+    }
+    .logo-box .search-btn .icon {
+        font-size: 0.85rem !important;
+    }
+    
     .card {
         background: white;
         border-radius: 10px;
@@ -207,55 +277,33 @@ st.markdown("""
         font-size: 14px !important;
     }
     
-    /* Header dengan logo */
-    .header-with-logo {
+    /* Input wrapper untuk layout yang lebih baik */
+    .input-wrapper {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
+        gap: 16px;
+        align-items: stretch;
     }
-    .header-with-logo h1 {
-        margin: 0;
+    .input-wrapper .input-field {
+        flex: 4;
     }
-    .logo-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    .input-wrapper .logo-side {
+        flex: 1;
+        min-width: 120px;
+        max-width: 180px;
     }
-    .tokopedia-link {
-        display: inline-block;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-        text-decoration: none;
-        line-height: 0;
-    }
-    .tokopedia-link:hover {
-        transform: scale(1.1);
-    }
-    .tokopedia-logo {
-        max-height: 40px;
-        width: auto;
-        vertical-align: middle;
-    }
-    .tokopedia-text {
-        display: inline-block;
-        vertical-align: middle;
-        font-size: 18px !important;
-        font-weight: 600;
-        color: #03ac0e;
-        cursor: default;
-    }
-    @media (max-width: 600px) {
-        .header-with-logo {
+    @media (max-width: 768px) {
+        .input-wrapper {
             flex-direction: column;
-            gap: 10px;
         }
-        .tokopedia-logo {
-            max-height: 30px;
+        .input-wrapper .logo-side {
+            max-width: 100%;
+            min-height: 80px;
         }
-        .tokopedia-text {
-            font-size: 14px !important;
+        .logo-box {
+            min-height: 80px;
+        }
+        .logo-box img {
+            height: 50px;
         }
     }
 </style>
@@ -271,28 +319,10 @@ def get_image_base64(image_path):
         return None
 
 # ==================== HEADER ====================
-# Coba load logo lokal
-logo_base64 = get_image_base64("logo.png")
-
-if logo_base64:
-    logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="Tokopedia" class="tokopedia-logo">'
-else:
-    # Fallback ke logo online jika file tidak ditemukan
-    logo_html = '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Tokopedia_Logo.svg/2560px-Tokopedia_Logo.svg.png" alt="Tokopedia" class="tokopedia-logo">'
-
-st.markdown(f"""
+st.markdown("""
 <div class="page-header">
     <div class="header-with-logo">
         <h1>📁 Scraping Data Ulasan</h1>
-        <div class="logo-wrapper">
-            <a href="https://www.tokopedia.com/samsung-official-store/review" 
-               target="_blank" 
-               class="tokopedia-link"
-               title="Klik untuk melihat ulasan Samsung di Tokopedia">
-                {logo_html}
-            </a>
-            <span class="tokopedia-text">Samsung Official Store</span>
-        </div>
     </div>
     <p>Ambil data ulasan produk Samsung Galaxy dari Tokopedia</p>
 </div>
@@ -484,37 +514,52 @@ def update_log_display(log_placeholder):
         st.markdown(log_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ==================== FORM INPUT ====================
-with st.container():
-    col1, col2 = st.columns([2, 1])
+# ==================== FORM INPUT DENGAN LOGO DI SAMPING ====================
+# Coba load logo lokal
+logo_base64 = get_image_base64("logo.png")
+
+if logo_base64:
+    logo_src = f"data:image/png;base64,{logo_base64}"
+else:
+    logo_src = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Tokopedia_Logo.svg/2560px-Tokopedia_Logo.svg.png"
+
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="card-title">🔗 Konfigurasi Scraping</div>', unsafe_allow_html=True)
+
+# Layout dengan 2 kolom: Input URL (besar) dan Logo (kecil)
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    url_input = st.text_input(
+        "URL Produk Tokopedia",
+        placeholder="https://www.tokopedia.com/samsung-official-store/review",
+        label_visibility="collapsed",
+        help="Masukkan URL halaman review produk Samsung Galaxy di Tokopedia"
+    )
     
-    with col1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">🔗 Konfigurasi Scraping</div>', unsafe_allow_html=True)
-        
-        url_input = st.text_input(
-            "URL Produk Tokopedia",
-            placeholder="https://www.tokopedia.com/samsung-official-store/review",
-            label_visibility="collapsed",
-            help="Masukkan URL halaman review produk Samsung Galaxy di Tokopedia"
-        )
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">📊 Jumlah Data</div>', unsafe_allow_html=True)
-        
-        jumlah_pilihan = st.selectbox(
-            "Pilih jumlah ulasan",
-            [50, 100, 200, 500, 1000, 5000, 10396],
-            index=6,
-            format_func=lambda x: f"{x:,} ulasan" if x < 10396 else f"Semua Data",
-            label_visibility="collapsed"
-        )
-        jumlah_data = int(jumlah_pilihan)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Pilihan jumlah data di bawah URL
+    jumlah_pilihan = st.selectbox(
+        "📊 Jumlah ulasan yang akan diambil",
+        [50, 100, 200, 500, 1000, 5000, 10396],
+        index=6,
+        format_func=lambda x: f"{x:,} ulasan" if x < 10396 else f"Semua Data ({x:,} ulasan)"
+    )
+    jumlah_data = int(jumlah_pilihan)
+
+with col2:
+    # Logo Box di samping kanan
+    st.markdown(f"""
+    <div class="logo-box">
+        <img src="{logo_src}" alt="Tokopedia">
+        <span class="label-text">Buka <span class="highlight">Tokopedia</span></span>
+        <a href="https://www.tokopedia.com/samsung-official-store/review" target="_blank" class="search-btn">
+            <span class="icon">🔍</span>
+            Cari
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================== TOMBOL START ====================
 col1, col2, col3 = st.columns([1, 2, 1])
